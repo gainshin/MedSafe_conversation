@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系統錯誤 - MediNote-AI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .error-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+        }
+        .error-icon {
+            font-size: 60px;
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+        .error-title {
+            font-size: 24px;
+            color: #dc3545;
+            margin-bottom: 15px;
+        }
+        .error-message {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        .back-btn {
+            background-color: #2c5aa0;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .back-btn:hover {
+            background-color: #1e3d6f;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">⚠️</div>
+        <h1 class="error-title">系統錯誤</h1>
+        <p class="error-message">
+            抱歉，系統處理您的請求時發生錯誤。<br>
+            請稍後再試，或聯繫系統管理員。
+        </p>
+        <div class="error-details">
+            <strong>錯誤訊息:</strong>
+            <p style="color: #dc3545; font-family: monospace; font-size: 14px;">{{ error }}</p>
+        </div>
+        <a href="/" class="back-btn">返回首頁</a>
+    </div>
+</body>
+</html>

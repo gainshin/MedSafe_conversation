@@ -1,0 +1,23 @@
+# 系統需求
+Flask==2.3.3
+flask-cors==4.0.0
+flask-session==0.5.0
+redis==4.6.0
+cryptography==41.0.4
+requests==2.31.0
+SpeechRecognition==3.10.0
+gTTS==2.3.2
+pygame==2.5.2
+python-dotenv==1.0.0
+logging==0.4.9.6
+
+# 開發工具
+pytest==7.4.2
+pytest-cov==4.1.0
+black==23.7.0
+flake8==6.1.0
+mypy==1.5.1
+
+# 監控和日誌
+prometheus-client==0.17.1
+structlog==23.1.2

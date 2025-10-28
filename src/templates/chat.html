@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediNote-AI 對話</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .chat-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background-color: #2c5aa0;
+            color: white;
+            padding: 15px;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #fafafa;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 70%;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            margin-left: auto;
+            text-align: right;
+        }
+        .ai-message {
+            background-color: #f0f0f0;
+            margin-right: auto;
+        }
+        .input-area {
+            padding: 20px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 10px;
+        }
+        .message-input {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+        .send-btn {
+            background-color: #2c5aa0;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .emergency-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .voice-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .typing {
+            font-style: italic;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="header">
+            <h1>MediNote-AI 醫療對話</h1>
+            <span id="username">{{ username }}</span>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="ai-message message">
+                <p>您好！我是您的醫療助手，有什麼可以幫助您的嗎？</p>
+            </div>
+        </div>
+        <div class="input-area">
+            <input type="text" class="message-input" id="messageInput" placeholder="請輸入您的問題...">
+            <button class="voice-btn" onclick="startVoiceInput()">語音</button>
+            <button class="send-btn" onclick="sendMessage()">發送</button>
+            <button class="emergency-btn" onclick="triggerEmergency()">緊急</button>
+        </div>
+    </div>
+
+    <script>
+        let conversationContext = {};
+        
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // 添加用戶訊息到聊天區
+            addMessage(message, 'user');
+            input.value = '';
+            
+            // 顯示輸入中狀態
+            showTypingIndicator();
+            
+            // 發送到後端
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: message,
+                    context: conversationContext
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                removeTypingIndicator();
+                
+                if (data.error) {
+                    addMessage('抱歉，處理您的訊息時發生錯誤。', 'ai');
+                } else {
+                    addMessage(data.response, 'ai');
+                    
+                    // 檢查緊急程度
+                    if (data.emergency_level > 0.7) {
+                        showEmergencyAlert();
+                    }
+                    
+                    // 更新對話上下文
+                    conversationContext = data.context || {};
+                }
+            })
+            .catch(error => {
+                console.error('發送訊息錯誤:', error);
+                removeTypingIndicator();
+                addMessage('抱歉，暫時無法處理您的訊息。請稍後再試。', 'ai');
+            });
+        }
+
+        function addMessage(message, sender) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'ai-message'}`;
+            messageDiv.innerHTML = `<p style="margin: 0; white-space: pre-wrap;">${message}</p>`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const chatMessages = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'ai-message message typing';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = '<p style="margin: 0;">AI正在思考中...</p>';
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        function startVoiceInput() {
+            // 語音輸入功能（模擬）
+            addMessage('語音輸入功能暫時無法使用，請使用文字輸入。', 'ai');
+        }
+
+        function triggerEmergency() {
+            if (confirm('確定要發送緊急求助嗎？如果是醫療緊急情況，請直接撥打119。')) {
+                fetch('/api/emergency-contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        type: 'medical',
+                        location: {address: '未知', coordinates: '未知'}
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('緊急聯繫已發送！請保持冷靜，等待回應。');
+                        addMessage('🚨 緊急聯繫已發送給您的家人和醫師！', 'ai');
+                    } else {
+                        alert('緊急聯繫功能暫時無法使用，請直接撥打119。');
+                    }
+                })
+                .catch(error => {
+                    console.error('緊急聯繫錯誤:', error);
+                    alert('請直接撥打119尋求幫助。');
+                });
+            }
+        }
+
+        function showEmergencyAlert() {
+            addMessage('⚠️ **注意** ⚠️\n\n根據您的描述，這可能是緊急醫療情況。\n\n**建議：**\n1. 立即聯繫您的家庭醫師\n2. 如果症狀持續或惡化，請立即就醫\n3. 保持冷靜，避免劇烈活動\n\n如果症狀惡化，請立即撥打119。', 'ai');
+        }
+    </script>
+</body>
+</html>

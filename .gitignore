@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+logs/
+*.log
+config/.env
+.env
+
+# Pytest cache
+.pytest_cache/
+
+# VSCode/IDE
+.vscode/
+.idea/
