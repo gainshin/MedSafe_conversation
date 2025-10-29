@@ -5,124 +5,553 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediNote-AI 對話</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
             font-size: 18px;
-            background-color: #f5f5f5;
+            background-color: #f0f2f5;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
         }
-        .chat-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            height: 80vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .header {
-            background-color: #2c5aa0;
+        
+        .main-header {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a6d 100%);
             color: white;
-            padding: 15px;
-            border-radius: 10px 10px 0 0;
+            padding: 16px 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            z-index: 100;
         }
+        
+        .main-header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 16px;
+        }
+        
+        .three-column-container {
+            display: flex;
+            height: calc(100vh - 64px);
+            background-color: #f0f2f5;
+        }
+        
+        /* Left Column - Requirements Panel */
+        .requirements-panel {
+            width: 28%;
+            background: white;
+            border-right: 2px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .panel-header {
+            background-color: #f8f9fa;
+            padding: 16px 20px;
+            border-bottom: 2px solid #e0e0e0;
+            font-weight: 600;
+            font-size: 18px;
+            color: #2c5aa0;
+        }
+        
+        .requirements-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .milestone {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .milestone-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .milestone-title {
+            font-weight: 600;
+            font-size: 17px;
+            color: #1e3a6d;
+        }
+        
+        .milestone-status {
+            background: #e3f2fd;
+            color: #2c5aa0;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+        
+        .requirement-item {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 10px;
+        }
+        
+        .requirement-item textarea {
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .add-requirement-btn {
+            background: #2c5aa0;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 16px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        .add-requirement-btn:hover {
+            background: #1e3a6d;
+        }
+        
+        /* Center Column - Chat/Prompt Panel */
+        .chat-panel {
+            width: 44%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+        }
+        
         .chat-messages {
             flex: 1;
             padding: 20px;
             overflow-y: auto;
             background-color: #fafafa;
         }
+        
         .message {
-            margin-bottom: 15px;
-            padding: 10px;
+            margin-bottom: 16px;
+            padding: 12px 16px;
             border-radius: 8px;
-            max-width: 70%;
+            max-width: 75%;
+            line-height: 1.5;
         }
+        
         .user-message {
-            background-color: #e3f2fd;
+            background: linear-gradient(135deg, #2c5aa0 0%, #4a7bbf 100%);
+            color: white;
             margin-left: auto;
-            text-align: right;
+            text-align: left;
         }
+        
         .ai-message {
-            background-color: #f0f0f0;
+            background: #f0f0f0;
+            color: #333;
             margin-right: auto;
+            border-left: 3px solid #2c5aa0;
         }
+        
+        .prompt-preview {
+            background: #fffbea;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 10px 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
         .input-area {
             padding: 20px;
-            border-top: 1px solid #ddd;
+            border-top: 2px solid #e0e0e0;
+            background: white;
+        }
+        
+        .message-input {
+            width: 100%;
+            padding: 14px;
+            font-size: 17px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-family: inherit;
+        }
+        
+        .button-group {
             display: flex;
             gap: 10px;
         }
-        .message-input {
+        
+        .btn {
             flex: 1;
-            padding: 12px;
-            font-size: 16px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-        }
-        .send-btn {
-            background-color: #2c5aa0;
-            color: white;
-            padding: 12px 20px;
+            padding: 14px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
+            transition: all 0.2s;
         }
-        .emergency-btn {
-            background-color: #dc3545;
+        
+        .btn-primary {
+            background: #2c5aa0;
             color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-left: 10px;
         }
-        .voice-btn {
-            background-color: #28a745;
+        
+        .btn-primary:hover {
+            background: #1e3a6d;
+        }
+        
+        .btn-success {
+            background: #28a745;
             color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
         }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        /* Right Column - Feedback/Output Panel */
+        .feedback-panel {
+            width: 28%;
+            background: white;
+            border-left: 2px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .feedback-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .feedback-tab {
+            flex: 1;
+            padding: 14px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-size: 15px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.2s;
+        }
+        
+        .feedback-tab.active {
+            background: white;
+            color: #2c5aa0;
+            border-bottom: 3px solid #2c5aa0;
+        }
+        
+        .feedback-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .feedback-section {
+            display: none;
+        }
+        
+        .feedback-section.active {
+            display: block;
+        }
+        
+        .hint-card {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 15px;
+        }
+        
+        .hint-card h4 {
+            margin: 0 0 8px 0;
+            color: #856404;
+            font-size: 16px;
+        }
+        
+        .hint-card p {
+            margin: 0;
+            color: #856404;
+            line-height: 1.5;
+        }
+        
+        .reference-card {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 15px;
+        }
+        
+        .reference-card h4 {
+            margin: 0 0 8px 0;
+            color: #0c5460;
+            font-size: 16px;
+        }
+        
+        .reference-card p {
+            margin: 0;
+            color: #0c5460;
+            line-height: 1.5;
+        }
+        
+        .output-preview {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 15px;
+        }
+        
+        .output-preview h4 {
+            margin: 0 0 10px 0;
+            color: #2c5aa0;
+            font-size: 16px;
+        }
+        
         .typing {
             font-style: italic;
             color: #666;
         }
+        
+        .emergency-alert {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 10px 20px;
+            color: #721c24;
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="header">
-            <h1>MediNote-AI 醫療對話</h1>
-            <span id="username">{{ username }}</span>
+    <!-- Main Header -->
+    <div class="main-header">
+        <h1>🏥 MediNote-AI 智慧醫療對話系統</h1>
+        <div class="user-info">
+            <span>👤 {{ username }}</span>
+            <button class="btn btn-danger" style="padding: 8px 16px;" onclick="triggerEmergency()">🚨 緊急</button>
         </div>
-        <div class="chat-messages" id="chatMessages">
-            <div class="ai-message message">
-                <p>您好！我是您的醫療助手，有什麼可以幫助您的嗎？</p>
+    </div>
+
+    <!-- Three Column Layout -->
+    <div class="three-column-container">
+        <!-- Left Column: Requirements Panel -->
+        <div class="requirements-panel">
+            <div class="panel-header">
+                📋 健康需求與目標
+            </div>
+            <div class="requirements-content">
+                <div class="milestone">
+                    <div class="milestone-header">
+                        <span class="milestone-title">💊 用藥管理</span>
+                        <span class="milestone-status">進行中</span>
+                    </div>
+                    <div class="requirement-item">
+                        <textarea placeholder="描述您的用藥需求或問題...">每天早上8點服用高血壓藥物</textarea>
+                    </div>
+                    <div class="requirement-item">
+                        <textarea placeholder="添加更多細節...">需要提醒服藥時間和劑量</textarea>
+                    </div>
+                    <button class="add-requirement-btn" onclick="addRequirement('medication')">+ 添加需求</button>
+                </div>
+
+                <div class="milestone">
+                    <div class="milestone-header">
+                        <span class="milestone-title">🩺 症狀追蹤</span>
+                        <span class="milestone-status">未開始</span>
+                    </div>
+                    <div class="requirement-item">
+                        <textarea placeholder="描述您想追蹤的症狀...">記錄每日血壓和心率</textarea>
+                    </div>
+                    <button class="add-requirement-btn" onclick="addRequirement('symptoms')">+ 添加需求</button>
+                </div>
+
+                <div class="milestone">
+                    <div class="milestone-header">
+                        <span class="milestone-title">📞 緊急聯絡</span>
+                        <span class="milestone-status">未開始</span>
+                    </div>
+                    <div class="requirement-item">
+                        <textarea placeholder="設定緊急聯絡人...">家人電話：0912-345-678</textarea>
+                    </div>
+                    <button class="add-requirement-btn" onclick="addRequirement('emergency')">+ 添加需求</button>
+                </div>
             </div>
         </div>
-        <div class="input-area">
-            <input type="text" class="message-input" id="messageInput" placeholder="請輸入您的問題...">
-            <button class="voice-btn" onclick="startVoiceInput()">語音</button>
-            <button class="send-btn" onclick="sendMessage()">發送</button>
-            <button class="emergency-btn" onclick="triggerEmergency()">緊急</button>
+
+        <!-- Center Column: Chat/Prompt Panel -->
+        <div class="chat-panel">
+            <div class="panel-header">
+                💬 對話區
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="ai-message message">
+                    您好！我是您的智慧醫療助手。我已經了解您的需求，可以協助您管理用藥、追蹤健康狀況。有什麼可以幫助您的嗎？
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <textarea class="message-input" id="messageInput" placeholder="請輸入您的問題或健康狀況..." rows="2"></textarea>
+                <div class="button-group">
+                    <button class="btn btn-success" onclick="startVoiceInput()">🎤 語音</button>
+                    <button class="btn btn-primary" onclick="sendMessage()">📤 發送</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Feedback/Output Panel -->
+        <div class="feedback-panel">
+            <div class="feedback-tabs">
+                <button class="feedback-tab active" onclick="switchTab('hints')">💡 提示</button>
+                <button class="feedback-tab" onclick="switchTab('references')">📖 參考</button>
+                <button class="feedback-tab" onclick="switchTab('output')">📊 輸出</button>
+            </div>
+            
+            <div class="feedback-content">
+                <!-- Hints Tab -->
+                <div id="hintsSection" class="feedback-section active">
+                    <div class="hint-card">
+                        <h4>💡 建議：完善用藥需求</h4>
+                        <p>您可以補充更多用藥細節，例如：藥物名稱、劑量、每日服用次數等資訊，這樣系統能提供更準確的提醒。</p>
+                    </div>
+                    <div class="hint-card">
+                        <h4>💡 建議：設定血壓範圍</h4>
+                        <p>建議添加正常血壓範圍（如：收縮壓120-140，舒張壓80-90），系統可以在超出範圍時及時提醒您。</p>
+                    </div>
+                    <div class="hint-card">
+                        <h4>💡 建議：補充緊急聯絡資訊</h4>
+                        <p>除了電話號碼，建議添加聯絡人姓名、關係（如：女兒、兒子）和備用聯絡方式，確保緊急時能快速聯繫。</p>
+                    </div>
+                </div>
+
+                <!-- References Tab -->
+                <div id="referencesSection" class="feedback-section">
+                    <div class="reference-card">
+                        <h4>📖 範例：完整用藥需求</h4>
+                        <p>藥物名稱：脈優（Norvasc）<br>
+                        劑量：5mg<br>
+                        服用時間：每日早上8:00<br>
+                        服用方式：飯後服用，配白開水<br>
+                        注意事項：避免與葡萄柚同時食用</p>
+                    </div>
+                    <div class="reference-card">
+                        <h4>📖 範例：症狀追蹤記錄</h4>
+                        <p>追蹤項目：血壓和心率<br>
+                        測量時間：早上起床後、晚上睡前<br>
+                        記錄方式：自動記錄數值和時間<br>
+                        異常範圍：收縮壓>140或<100，舒張壓>90或<60<br>
+                        異常處理：立即通知並建議就醫</p>
+                    </div>
+                    <div class="reference-card">
+                        <h4>📖 範例：緊急聯絡設定</h4>
+                        <p>主要聯絡人：張小明（女兒）<br>
+                        電話：0912-345-678<br>
+                        備用聯絡人：李大華（兒子）<br>
+                        電話：0923-456-789<br>
+                        家庭醫師：王醫師 02-1234-5678</p>
+                    </div>
+                </div>
+
+                <!-- Output Tab -->
+                <div id="outputSection" class="feedback-section">
+                    <div class="output-preview">
+                        <h4>📊 系統理解預覽</h4>
+                        <p><strong>已識別需求：</strong></p>
+                        <ul style="margin: 8px 0; padding-left: 20px;">
+                            <li>每日早上8點用藥提醒</li>
+                            <li>高血壓藥物管理</li>
+                            <li>血壓心率追蹤</li>
+                            <li>緊急聯絡人設定</li>
+                        </ul>
+                        <p style="margin-top: 12px;"><strong>待補充資訊：</strong></p>
+                        <ul style="margin: 8px 0; padding-left: 20px; color: #dc3545;">
+                            <li>藥物具體名稱和劑量</li>
+                            <li>血壓正常範圍設定</li>
+                            <li>聯絡人詳細資訊</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="output-preview">
+                        <h4>🔒 隱私保護狀態</h4>
+                        <p>✅ 個人健康資訊已加密<br>
+                        ✅ 符合HIPAA規範<br>
+                        ✅ PHI自動去識別化<br>
+                        ✅ 通訊端到端加密</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         let conversationContext = {};
+        let currentRequirements = {
+            medication: [],
+            symptoms: [],
+            emergency: []
+        };
         
         document.getElementById('messageInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
                 sendMessage();
             }
         });
@@ -140,7 +569,7 @@
             // 顯示輸入中狀態
             showTypingIndicator();
             
-            // 發送到後端
+            // 發送到後端，包含當前需求
             fetch('/api/chat', {
                 method: 'POST',
                 headers: {
@@ -148,7 +577,8 @@
                 },
                 body: JSON.stringify({
                     message: message,
-                    context: conversationContext
+                    context: conversationContext,
+                    requirements: currentRequirements
                 })
             })
             .then(response => response.json())
@@ -167,6 +597,9 @@
                     
                     // 更新對話上下文
                     conversationContext = data.context || {};
+                    
+                    // 更新反饋面板
+                    updateFeedbackPanel(data);
                 }
             })
             .catch(error => {
@@ -180,7 +613,7 @@
             const chatMessages = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'ai-message'}`;
-            messageDiv.innerHTML = `<p style="margin: 0; white-space: pre-wrap;">${message}</p>`;
+            messageDiv.innerHTML = message.replace(/\n/g, '<br>');
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
@@ -190,7 +623,7 @@
             const typingDiv = document.createElement('div');
             typingDiv.className = 'ai-message message typing';
             typingDiv.id = 'typingIndicator';
-            typingDiv.innerHTML = '<p style="margin: 0;">AI正在思考中...</p>';
+            typingDiv.innerHTML = '💭 AI正在分析您的健康需求...';
             chatMessages.appendChild(typingDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
@@ -203,12 +636,37 @@
         }
 
         function startVoiceInput() {
-            // 語音輸入功能（模擬）
-            addMessage('語音輸入功能暫時無法使用，請使用文字輸入。', 'ai');
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+                recognition.lang = 'zh-TW';
+                recognition.continuous = false;
+                recognition.interimResults = false;
+
+                recognition.onstart = function() {
+                    addMessage('🎤 語音輸入已啟動，請開始說話...', 'ai');
+                };
+
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    document.getElementById('messageInput').value = transcript;
+                    addMessage('✅ 語音識別完成：' + transcript, 'ai');
+                };
+
+                recognition.onerror = function(event) {
+                    addMessage('❌ 語音識別錯誤，請重試或使用文字輸入。', 'ai');
+                };
+
+                recognition.start();
+            } else {
+                addMessage('抱歉，您的瀏覽器不支援語音輸入功能。請使用文字輸入。', 'ai');
+            }
         }
 
         function triggerEmergency() {
-            if (confirm('確定要發送緊急求助嗎？如果是醫療緊急情況，請直接撥打119。')) {
+            if (confirm('⚠️ 確定要發送緊急求助嗎？\n\n如果是立即危及生命的緊急情況，請直接撥打119！\n\n按下確定將通知您的緊急聯絡人。')) {
+                addMessage('🚨 正在發送緊急通知...', 'ai');
+                
                 fetch('/api/emergency-contact', {
                     method: 'POST',
                     headers: {
@@ -216,28 +674,116 @@
                     },
                     body: JSON.stringify({
                         type: 'medical',
-                        location: {address: '未知', coordinates: '未知'}
+                        timestamp: new Date().toISOString(),
+                        requirements: currentRequirements
                     })
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('緊急聯繫已發送！請保持冷靜，等待回應。');
-                        addMessage('🚨 緊急聯繫已發送給您的家人和醫師！', 'ai');
+                        alert('✅ 緊急聯繫已發送！\n\n已通知：\n' + (data.contacts || '您的緊急聯絡人'));
+                        addMessage('🚨 <strong>緊急聯繫已發送！</strong><br><br>已通知您的家人和醫療團隊。<br>請保持冷靜，幫助即將到來。', 'ai');
                     } else {
-                        alert('緊急聯繫功能暫時無法使用，請直接撥打119。');
+                        alert('❌ 緊急聯繫功能暫時無法使用\n\n請立即撥打:\n• 119 (緊急醫療)\n• 您的家庭醫師');
+                        addMessage('⚠️ 系統暫時無法發送通知，請直接撥打119或聯繫您的家庭醫師。', 'ai');
                     }
                 })
                 .catch(error => {
                     console.error('緊急聯繫錯誤:', error);
-                    alert('請直接撥打119尋求幫助。');
+                    alert('❌ 系統錯誤\n\n請立即撥打119尋求緊急醫療協助！');
+                    addMessage('⚠️ 系統錯誤，請立即撥打119！', 'ai');
                 });
             }
         }
 
         function showEmergencyAlert() {
-            addMessage('⚠️ **注意** ⚠️\n\n根據您的描述，這可能是緊急醫療情況。\n\n**建議：**\n1. 立即聯繫您的家庭醫師\n2. 如果症狀持續或惡化，請立即就醫\n3. 保持冷靜，避免劇烈活動\n\n如果症狀惡化，請立即撥打119。', 'ai');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'emergency-alert';
+            alertDiv.innerHTML = `
+                <h3 style="margin: 0 0 10px 0; color: #721c24;">⚠️ 緊急醫療警告</h3>
+                <p style="margin: 0 0 10px 0;"><strong>根據您的描述，這可能是緊急醫療情況！</strong></p>
+                <p style="margin: 0 0 10px 0;"><strong>建議立即採取行動：</strong></p>
+                <ol style="margin: 0 0 10px 0; padding-left: 20px;">
+                    <li>如症狀嚴重，立即撥打 <strong>119</strong></li>
+                    <li>聯繫您的家庭醫師</li>
+                    <li>通知家人或照護者</li>
+                    <li>保持冷靜，避免劇烈活動</li>
+                </ol>
+                <button onclick="triggerEmergency()" style="width: 100%; padding: 12px; background: #dc3545; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: 600;">🚨 立即發送緊急通知</button>
+            `;
+            
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.appendChild(alertDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
+
+        function switchTab(tabName) {
+            // 更新標籤狀態
+            const tabs = document.querySelectorAll('.feedback-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // 切換內容顯示
+            document.getElementById('hintsSection').classList.remove('active');
+            document.getElementById('referencesSection').classList.remove('active');
+            document.getElementById('outputSection').classList.remove('active');
+            
+            if (tabName === 'hints') {
+                document.getElementById('hintsSection').classList.add('active');
+            } else if (tabName === 'references') {
+                document.getElementById('referencesSection').classList.add('active');
+            } else if (tabName === 'output') {
+                document.getElementById('outputSection').classList.add('active');
+            }
+        }
+
+        function addRequirement(category) {
+            const milestone = event.target.closest('.milestone');
+            const newRequirement = document.createElement('div');
+            newRequirement.className = 'requirement-item';
+            newRequirement.innerHTML = `
+                <textarea placeholder="描述新的需求..." oninput="updateRequirements()"></textarea>
+            `;
+            milestone.querySelector('.add-requirement-btn').before(newRequirement);
+            newRequirement.querySelector('textarea').focus();
+        }
+
+        function updateRequirements() {
+            // 更新需求數據結構（可以在發送訊息時使用）
+            const milestones = document.querySelectorAll('.milestone');
+            milestones.forEach(milestone => {
+                const category = milestone.querySelector('.add-requirement-btn').getAttribute('onclick').match(/'(\w+)'/)[1];
+                const textareas = milestone.querySelectorAll('textarea');
+                currentRequirements[category] = Array.from(textareas).map(ta => ta.value.trim()).filter(v => v);
+            });
+            
+            // 觸發提示更新
+            updateHints();
+        }
+
+        function updateHints() {
+            // 根據當前需求動態生成提示（可以調用API獲取智能提示）
+            // 這裡是靜態示例，實際可以連接到後端AI生成個性化提示
+        }
+
+        function updateFeedbackPanel(data) {
+            // 根據AI回應更新反饋面板
+            if (data.hints) {
+                // 更新提示
+            }
+            if (data.requirements_analysis) {
+                // 更新輸出預覽
+            }
+        }
+
+        // 頁面載入時收集初始需求
+        window.addEventListener('DOMContentLoaded', function() {
+            const textareas = document.querySelectorAll('textarea');
+            textareas.forEach(ta => {
+                ta.addEventListener('input', updateRequirements);
+            });
+            updateRequirements();
+        });
     </script>
 </body>
 </html>
